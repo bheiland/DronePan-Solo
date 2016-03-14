@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     showToast("Starting panorama.");
                     setupPano();
 
-                // Stop the pano
+                    // Stop the pano
                 } else {
 
                     showToast("Stopping panorama. Please stand by.");
@@ -318,15 +318,18 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         });
     }
 
-    private static final int NUM_COLUMNS = 6;
+    private static final int NUM_COLUMNS = 12;  // 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
     private int loopCount = 0;
-    private int[] pitches = {0, -30, -60, -90};
+    private int[] pitches = {0, -15, -30, -60, -90};  // added -15 pitch level to include an additional rotation a far distance captures
+    private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
+    private int SHOT_DELAY = 2000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
 
     // Change to guided mode, start gimbal control, reset the gimbal to 0, and set mode to guided
     private void setupPano() {
 
         totalPhotoCount = 0;
+        panoProgressBar.setMax(NUM_COLUMNS*NUM_PITCHES+1); // auto adjust progress bar max limit to photo count
         panoProgressBar.setProgress(totalPhotoCount);
         panoInProgress = true;
 
@@ -357,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             }
         };
 
-        h.postDelayed(begin, 3000);
+        h.postDelayed(begin, SHOT_DELAY);
 
     }
 
@@ -410,20 +413,20 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 photoCount = 0;
 
                 // Take nadir shot
-                if(loopCount == 3) {
+                if(loopCount == NUM_PITCHES) {
 
                     loopCount = 0;
 
                     takeNadirPhotoAndFinishPano();
 
                     // Set the progress bar to 100%
-                    panoProgressBar.setProgress(100);
+                    panoProgressBar.setProgress(NUM_COLUMNS*NUM_PITCHES+1);
 
                     // Update the stop button
                     panoButton.setText("Start");
 
 
-                // Continue with photo loop
+                    // Continue with photo loop
                 } else {
 
                     loopAndShoot();
@@ -440,11 +443,11 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                 if(Build.MODEL.contains("SDK")) {
 
-                    showToast("Yaw drone: " + photoCount);
+                    showToast("Yaw drone: " + 360/NUM_COLUMNS);
 
                 } else {
 
-                    yawDrone(60);
+                    yawDrone(360/NUM_COLUMNS);
 
                 }
 
@@ -452,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     loopCount++;
 
                     // Now let's pitch gimbal and then we'll begin the next loop
-                    h.postDelayed(pitch, 3000);
+                    h.postDelayed(pitch, SHOT_DELAY);
 
                 } else {
 
@@ -471,6 +474,9 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 if(Build.MODEL.contains("SDK")) {
 
                     showToast("Take photo");
+                    // Update progress bar
+                    totalPhotoCount++;
+                    panoProgressBar.setProgress(totalPhotoCount);
 
                 } else {
 
@@ -478,16 +484,16 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Update progress bar
                     totalPhotoCount++;
-                    panoProgressBar.setProgress(totalPhotoCount*5);
+                    panoProgressBar.setProgress(totalPhotoCount);
 
                 }
 
-                h.postDelayed(yaw, 3000);
+                h.postDelayed(yaw, SHOT_DELAY);
 
             }
         }; // End take photo
 
-        h.postDelayed(photo, 3000);
+        h.postDelayed(photo, SHOT_DELAY);
 
         photoCount++;
 
@@ -498,7 +504,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         ControlApi.getApi(this.drone).turnTo(angle, 1, true, new AbstractCommandListener() {
             @Override
             public void onSuccess() {
-                showToast("Yawing 60 degrees...");
+                showToast("Yawing "+ (360/NUM_COLUMNS) +" degrees...");
             }
 
             @Override
@@ -512,7 +518,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             }
         });
 
-        showToast("Yaw drone");
+        showToast("Yaw drone...");
 
     }
 
@@ -605,12 +611,12 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                 }
 
-                h.postDelayed(pitch, 3000);
+                h.postDelayed(pitch, SHOT_DELAY);
 
             }
         };
 
-        h.postDelayed(finish, 3000);
+        h.postDelayed(finish, SHOT_DELAY);
 
     }
 
