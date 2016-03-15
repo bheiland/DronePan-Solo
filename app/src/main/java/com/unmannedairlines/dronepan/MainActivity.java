@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         });
     }
 
-    private static final int NUM_COLUMNS = 12;  // 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
+    private static final int NUM_COLUMNS = 4;  // 4 = 90 degrees 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
     private int loopCount = 0;
     private int[] pitches = {0, -15, -30, -60, -90};  // added -15 pitch level to include an additional rotation a far distance captures
     private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
