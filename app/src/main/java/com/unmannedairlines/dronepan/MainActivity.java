@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
     private TextureView cameraView;
     private Button panoButton;
+    private Button columnsButton;
+    private Button pitchesButton;
 
     // Progress bar
     private ProgressBar panoProgressBar;
@@ -78,7 +80,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     showToast("Starting panorama.");
                     setupPano();
-
+                    columnsButton.setEnabled(false);
+                    pitchesButton.setEnabled(false);
                     // Stop the pano
                 } else {
 
@@ -87,9 +90,61 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Let's disable the button so it doesn't get double-clicked
                     panoButton.setEnabled(false);
+                    columnsButton.setEnabled(true);
+                    pitchesButton.setEnabled(true);
 
                 }
             }
+        });
+        columnsButton = (Button) findViewById(R.id.columnsButton);
+        columnsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+        public void onClick(View col){
+                switch (NUM_COLUMNS){
+                    case 4: NUM_COLUMNS = 6;
+                        break;
+                    case 6: NUM_COLUMNS = 8;
+                        break;
+                    case 8: NUM_COLUMNS = 12;
+                        break;
+                    case 12: NUM_COLUMNS = 4;
+                        break;
+                    default: NUM_COLUMNS = 6;
+                        break;
+                }
+                columnsButton.setText("Columns:"+ NUM_COLUMNS);
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
+                //showToast("Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
+            }
+
+        });
+        pitchesButton = (Button) findViewById(R.id.pitchesButton);
+        pitchesButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View pit){
+                switch (pitches.length){
+                    case 4: pitches = new int[] {0,-15, -30, -60, -90};
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -15, -30, -60, -90" );
+                        break;
+                    case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
+                        break;
+                    case 6: pitches = new int[] {0, -30, -60, -90};
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -30, -60, -90" );
+                        break;
+                    default: pitches = new int[] {0, -30, -60, -90};
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -30, -60, -90" );
+                        break;
+                }
+
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
+
+            }
+
         });
 
         // Camera preview
@@ -318,9 +373,9 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         });
     }
 
-    private static final int NUM_COLUMNS = 4;  // 4 = 90 degrees 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
+    private int NUM_COLUMNS = 6;  // 4 = 90 degrees 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
     private int loopCount = 0;
-    private int[] pitches = {0, -15, -30, -60, -90};  // added -15 pitch level to include an additional rotation a far distance captures
+    private int[] pitches = {0, -30, -60, -90};
     private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
     private int SHOT_DELAY = 2000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
@@ -367,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private void loopAndShoot() {
 
         // The pano stop button was clicked so let's reset a bunch of stuff
-        if(!panoInProgress) {
+        if (!panoInProgress) {
 
             panoButton.setText("Start");
 
@@ -385,6 +440,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
             // Enable the start button again
             panoButton.setEnabled(true);
+
 
             showToast("Your panorama has been stopped successfully.");
 
@@ -424,6 +480,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Update the stop button
                     panoButton.setText("Start");
+                    columnsButton.setEnabled(true);
+                    pitchesButton.setEnabled(true);
 
 
                     // Continue with photo loop

@@ -101,19 +101,34 @@
 
         <TextureView
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:id="@+id/cameraView"
             android:paddingBottom="100px"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:layout_gravity="left|bottom" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Start"
             android:id="@+id/panoButton"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="bottom|center_horizontal" />
 
 
     </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Columns: 6"
+        android:id="@+id/columnsButton"
+        android:layout_gravity="left|bottom" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pitches: 0, -30, -60, -90"
+        android:id="@+id/pitchesButton"
+        android:layout_gravity="right|bottom" />
 
 </FrameLayout>
