@@ -597,7 +597,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             }
         });
 
-        showToast("Yaw drone...");
+        //showToast("Yaw drone..."); // remarked out to unclutter messages not needed if onSuccess happened.
 
     }
 
