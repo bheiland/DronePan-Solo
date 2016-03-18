@@ -101,19 +101,29 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             @Override
         public void onClick(View col){
                 switch (NUM_COLUMNS){
+                    case 3: NUM_COLUMNS = 4;
+                        SHOT_DELAY = 3000;  // larger turn of drone requires more time
+                        break;
                     case 4: NUM_COLUMNS = 6;
+                        SHOT_DELAY = 2000;
                         break;
                     case 6: NUM_COLUMNS = 8;
+                        SHOT_DELAY = 2000;
                         break;
                     case 8: NUM_COLUMNS = 12;
+                        SHOT_DELAY = 2000;
                         break;
-                    case 12: NUM_COLUMNS = 4;
+                    case 12: NUM_COLUMNS = 3;
+                        SHOT_DELAY = 3000;
                         break;
                     default: NUM_COLUMNS = 6;
                         break;
                 }
-                columnsButton.setText("Columns:"+ NUM_COLUMNS);
-                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
+                columnsButton.setText("Columns:"+ NUM_COLUMNS + " at " + (360/NUM_COLUMNS) +" degrees" );
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " + (NUM_COLUMNS * NUM_PITCHES +1));
+                panoProgressBar.setMax(NUM_COLUMNS*NUM_PITCHES+1); // auto adjust progress bar max limit to photo count
+                totalPhotoCount = 0;
+                panoProgressBar.setProgress(totalPhotoCount);
                 //showToast("Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
             }
 
@@ -123,24 +133,35 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             @Override
             public void onClick(View pit){
                 switch (pitches.length){
-                    case 4: pitches = new int[] {0,-15, -30, -60, -90};
-                        NUM_PITCHES = pitches.length -1;
-                        pitchesButton.setText("Pitches: 0, -15, -30, -60, -90" );
-                        break;
-                    case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
-                        NUM_PITCHES = pitches.length -1;
-                        pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
-                        break;
-                    case 6: pitches = new int[] {0, -30, -60, -90};
+                    case 3: pitches = new int[] {0, -30, -60, -90};
+                        SHOT_DELAY = 2000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
+                    case 4: pitches = new int[] {0,-23, -45, -67, -90};
+                        SHOT_DELAY = 2000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -23, -45, -67, -90" );
+                        break;
+                    case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
+                        SHOT_DELAY = 2000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
+                        break;
+                    case 6: pitches = new int[] {0, -45, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -45, -90" );
+                        break;
                     default: pitches = new int[] {0, -30, -60, -90};
+                        SHOT_DELAY = 2000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
                 }
-
+                panoProgressBar.setMax(NUM_COLUMNS*NUM_PITCHES+1); // auto adjust progress bar max limit to photo count
+                totalPhotoCount = 0;
+                panoProgressBar.setProgress(totalPhotoCount);
                 showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
 
             }
@@ -636,6 +657,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 if(Build.MODEL.contains("SDK")) {
 
                     showToast("Panorama complete!!!");
+                    panoInProgress = (false);//needed to add this when in sdk mode to end properly
 
                 } else {
 

@@ -120,7 +120,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Columns: 6"
+        android:text="Columns: 6 at 60 degrees"
         android:id="@+id/columnsButton"
         android:layout_gravity="left|bottom" />
 
