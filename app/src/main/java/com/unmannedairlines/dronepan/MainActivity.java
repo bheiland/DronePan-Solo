@@ -105,13 +105,13 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                         SHOT_DELAY = 3000;  // larger turn of drone requires more time
                         break;
                     case 4: NUM_COLUMNS = 6;
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         break;
                     case 6: NUM_COLUMNS = 8;
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         break;
                     case 8: NUM_COLUMNS = 12;
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         break;
                     case 12: NUM_COLUMNS = 3;
                         SHOT_DELAY = 3000;
@@ -134,17 +134,17 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             public void onClick(View pit){
                 switch (pitches.length){
                     case 3: pitches = new int[] {0, -30, -60, -90};
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
                     case 4: pitches = new int[] {0,-23, -45, -67, -90};
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -23, -45, -67, -90" );
                         break;
                     case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
                         break;
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                         pitchesButton.setText("Pitches: 0, -45, -90" );
                         break;
                     default: pitches = new int[] {0, -30, -60, -90};
-                        SHOT_DELAY = 2000;
+                        SHOT_DELAY = 3000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
