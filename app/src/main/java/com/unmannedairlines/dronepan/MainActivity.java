@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private Button panoButton;
     private Button columnsButton;
     private Button pitchesButton;
+    private Button columnReductionButton;
 
     // Progress bar
     private ProgressBar panoProgressBar;
@@ -96,6 +97,18 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 }
             }
         });
+        columnReductionButton = (Button) findViewById(R.id.columnReductionButton);
+        columnReductionButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View colRed) {
+                columnReduction = (!columnReduction);
+                if (columnReduction == true){
+                    columnReductionButton.setText("Column Reduction: YES" );
+                }else{
+                    columnReductionButton.setText("Column Reduction: NO" );
+                }
+            }
+        });
         columnsButton = (Button) findViewById(R.id.columnsButton);
         columnsButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -119,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     default: NUM_COLUMNS = 6;
                         break;
                 }
+                UI_NUM_COLUMNS = NUM_COLUMNS;
                 columnsButton.setText("Columns:"+ NUM_COLUMNS + " at " + (360/NUM_COLUMNS) +" degrees" );
                 showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " + (NUM_COLUMNS * NUM_PITCHES +1));
                 panoProgressBar.setMax(NUM_COLUMNS*NUM_PITCHES+1); // auto adjust progress bar max limit to photo count
@@ -159,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
                 }
+                System.gc(); // garbage collect
                 panoProgressBar.setMax(NUM_COLUMNS*NUM_PITCHES+1); // auto adjust progress bar max limit to photo count
                 totalPhotoCount = 0;
                 panoProgressBar.setProgress(totalPhotoCount);
@@ -395,12 +410,31 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     }
 
     private int NUM_COLUMNS = 6;  // 4 = 90 degrees 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
+    private int UI_NUM_COLUMNS = 6;  // retain num columns setting from UI button
     private int loopCount = 0;
     private int[] pitches = {0, -30, -60, -90};
     private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
     private int SHOT_DELAY = 2000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
+    private boolean columnReduction = true;
 
+    private void autoDecreaseColumns(){
+        switch( NUM_COLUMNS){
+        case 12: NUM_COLUMNS = 8;
+            break;
+        case 8: NUM_COLUMNS = 6;
+            break;
+        case 6: NUM_COLUMNS = 4;
+            break;
+        case 4: NUM_COLUMNS = 3;
+            break;
+        case 3: NUM_COLUMNS = 3;
+            break;
+        default: NUM_COLUMNS = 3;
+            break;
+    }
+        showToast("Columns auto reduced to:" + NUM_COLUMNS);
+    }
     // Change to guided mode, start gimbal control, reset the gimbal to 0, and set mode to guided
     private void setupPano() {
 
@@ -535,7 +569,9 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Now let's pitch gimbal and then we'll begin the next loop
                     h.postDelayed(pitch, SHOT_DELAY);
-
+                    if (columnReduction == true) {
+                        autoDecreaseColumns();
+                    }
                 } else {
 
                     loopAndShoot();
@@ -658,7 +694,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     showToast("Panorama complete!!!");
                     panoInProgress = (false);//needed to add this when in sdk mode to end properly
-
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
                 } else {
 
                     pitchGimbal(0);
@@ -670,6 +706,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                             showToast("Panorama complete! You can now take control of Solo.");
                         }
                     });
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
 
                 }
             }
