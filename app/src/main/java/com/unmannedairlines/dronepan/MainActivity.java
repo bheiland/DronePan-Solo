@@ -725,6 +725,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 } else {
 
                     takePhoto();
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
 
                 }
 
