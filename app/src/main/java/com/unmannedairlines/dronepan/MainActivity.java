@@ -430,7 +430,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             break;
         case 3: NUM_COLUMNS = 2;
             break;
-        default: NUM_COLUMNS = 4;
+        default: NUM_COLUMNS = 4; // default to 4 on invalid
             break;
     }
         showToast("Columns auto reduced to:" + NUM_COLUMNS);
