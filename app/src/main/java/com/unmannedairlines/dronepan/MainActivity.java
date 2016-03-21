@@ -428,9 +428,9 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             break;
         case 4: NUM_COLUMNS = 3;
             break;
-        case 3: NUM_COLUMNS = 3;
+        case 3: NUM_COLUMNS = 2;
             break;
-        default: NUM_COLUMNS = 3;
+        default: NUM_COLUMNS = 4;
             break;
     }
         showToast("Columns auto reduced to:" + NUM_COLUMNS);
