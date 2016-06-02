@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             @Override
             public void onClick(View colRed) {
                 columnReduction = (!columnReduction);
-                if (columnReduction == true){
+                if (columnReduction){
                     columnReductionButton.setText("Column Reduction: YES");
 
                 }else{
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             case AttributeEvent.GPS_COUNT:
                 TextView satelliteTextView = (TextView)findViewById(R.id.satelliteTextView);
                 Gps gps = this.drone.getAttribute(AttributeType.GPS);
-                satelliteTextView.setText(String.format("Sats: %3.1f", gps.getSatellitesCount()));
+                satelliteTextView.setText(String.format("Sats: %d", gps.getSatellitesCount()));
                 break;
 
             case AttributeEvent.STATE_VEHICLE_MODE:
@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 flightModeTextView.setText("Mode: " + vehicleMode.getLabel());
 
                 // If the mode is switched and the pano is in progress let's release gimbal control
-                if(vehicleMode.getLabel() != "Guided" && panoInProgress) {
+                if(vehicleMode.getLabel().equals("Guided") && panoInProgress) {
                     panoInProgress = false;
                     GimbalApi.getApi(this.drone).stopGimbalControl(gimbalListener);
                 }
@@ -440,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private boolean columnReduction = true;
     private int calculatedPhotos =0;
     private int decreaseColumns(int startingColumns){
-        int columns = 0;
+        int columns;
         switch (startingColumns){
             case 12: columns = 8;
                 break;
@@ -481,7 +481,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     // Change to guided mode, start gimbal control, reset the gimbal to 0, and set mode to guided
 
     private int calculatedPhotoCount(int columns, int numPitches, boolean reduction){
-        int numPhotos =0;
+        int numPhotos;
         if (reduction) {
             numPhotos = columns;
             for (int i = 0; i < (numPitches-1); i++) {
@@ -631,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Now let's pitch gimbal and then we'll begin the next loop
                     h.postDelayed(pitch, SHOT_DELAY);
-                    if (columnReduction == true) {
+                    if (columnReduction) {
                         autoDecreaseColumns();
                     }
                 } else {
