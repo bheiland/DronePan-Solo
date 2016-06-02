@@ -436,7 +436,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private int[] pitches = {0, -30, -60, -90};
     private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
-    private int SHOT_DELAY = 2000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
+    private int SHOT_DELAY = 3000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
     private boolean columnReduction = true;
     private int calculatedPhotos =0;
     private int decreaseColumns(int startingColumns){
@@ -610,7 +610,6 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 }
             }
         }; // End pitch gimbal
-
         // Yaw the drone
         final Runnable yaw = new Runnable() {
 
