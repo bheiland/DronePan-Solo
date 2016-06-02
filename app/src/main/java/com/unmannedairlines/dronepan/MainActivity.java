@@ -20,12 +20,16 @@ import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.ControlApi;
 import com.o3dr.android.client.apis.GimbalApi;
 import com.o3dr.android.client.apis.VehicleApi;
+import com.o3dr.android.client.apis.solo.SoloApi;
 import com.o3dr.android.client.apis.solo.SoloCameraApi;
+import com.o3dr.android.client.apis.solo.SoloMessageApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
 import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
+import com.o3dr.services.android.lib.drone.companion.solo.SoloAttributes;
+import com.o3dr.services.android.lib.drone.companion.solo.SoloState;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
@@ -48,11 +52,14 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
     private TextureView cameraView;
     private Button panoButton;
+    private Button columnsButton;
+    private Button pitchesButton;
+    private Button columnReductionButton;
 
     // Progress bar
     private ProgressBar panoProgressBar;
     private int totalPhotoCount = 0;
-
+    private int calculatedPhotoCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +85,9 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     showToast("Starting panorama.");
                     setupPano();
-
-                // Stop the pano
+                    columnsButton.setEnabled(false);
+                    pitchesButton.setEnabled(false);
+                    // Stop the pano
                 } else {
 
                     showToast("Stopping panorama. Please stand by.");
@@ -87,9 +95,113 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Let's disable the button so it doesn't get double-clicked
                     panoButton.setEnabled(false);
+                    columnsButton.setEnabled(true);
+                    pitchesButton.setEnabled(true);
 
                 }
             }
+        });
+        columnReductionButton = (Button) findViewById(R.id.columnReductionButton);
+        columnReductionButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View colRed) {
+                columnReduction = (!columnReduction);
+                if (columnReduction){
+                    columnReductionButton.setText("Column Reduction: YES");
+
+                }else{
+                    columnReductionButton.setText("Column Reduction: NO" );
+                }
+                calculatedPhotos = calculatedPhotoCount(NUM_COLUMNS,NUM_PITCHES,columnReduction);
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " + (calculatedPhotos));
+                TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                photoCount.setText(String.format("Photos: 0 of %d", (calculatedPhotos)));
+                panoProgressBar.setMax(calculatedPhotoCount); // auto adjust progress bar max limit to photo count
+                totalPhotoCount = 0;
+                panoProgressBar.setProgress(totalPhotoCount);
+            }
+        });
+        columnsButton = (Button) findViewById(R.id.columnsButton);
+        columnsButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+        public void onClick(View col){
+
+                switch (NUM_COLUMNS){
+                    case 3: NUM_COLUMNS = 4;
+                        SHOT_DELAY = 3000;  // larger turn of drone requires more time
+                        break;
+                    case 4: NUM_COLUMNS = 6;
+                        SHOT_DELAY = 3000;
+                        break;
+                    case 6: NUM_COLUMNS = 8;
+                        SHOT_DELAY = 3000;
+                        break;
+                    case 8: NUM_COLUMNS = 12;
+                        SHOT_DELAY = 3000;
+                        break;
+                    case 12: NUM_COLUMNS = 3;
+                        SHOT_DELAY = 3000;
+                        break;
+                    default: NUM_COLUMNS = 6;
+                        break;
+                }
+                UI_NUM_COLUMNS = NUM_COLUMNS;
+
+                columnsButton.setText("Columns:"+ NUM_COLUMNS + " at " + (360/NUM_COLUMNS) +" degrees" );
+                calculatedPhotos = calculatedPhotoCount(NUM_COLUMNS,NUM_PITCHES,columnReduction);
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " + (calculatedPhotos));
+                TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                photoCount.setText(String.format("Photos: 0 of %d", (calculatedPhotos)));
+                panoProgressBar.setMax(calculatedPhotoCount); // auto adjust progress bar max limit to photo count
+                totalPhotoCount = 0;
+                panoProgressBar.setProgress(totalPhotoCount);
+                //showToast("Number of photos = " +  (NUM_COLUMNS * NUM_PITCHES +1));
+            }
+
+        });
+        pitchesButton = (Button) findViewById(R.id.pitchesButton);
+        pitchesButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View pit){
+                switch (pitches.length){
+                    case 3: pitches = new int[] {0, -30, -60, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -30, -60, -90" );
+                        break;
+                    case 4: pitches = new int[] {0,-23, -45, -67, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -23, -45, -67, -90" );
+                        break;
+                    case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
+                        break;
+                    case 6: pitches = new int[] {0, -45, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -45, -90" );
+                        break;
+                    default: pitches = new int[] {0, -30, -60, -90};
+                        SHOT_DELAY = 3000;
+                        NUM_PITCHES = pitches.length -1;
+                        pitchesButton.setText("Pitches: 0, -30, -60, -90" );
+                        break;
+                }
+                System.gc(); // garbage collect
+
+                totalPhotoCount = 0;
+                calculatedPhotos = calculatedPhotoCount(NUM_COLUMNS,NUM_PITCHES,columnReduction);
+                panoProgressBar.setMax(calculatedPhotoCount); // auto adjust progress bar max limit to photo count
+                TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                photoCount.setText(String.format("Photos: 0 of %d", (calculatedPhotos)));
+                panoProgressBar.setProgress(totalPhotoCount);
+                showToast("Number of columns =  " + NUM_COLUMNS + "  Number of photos = " +  (calculatedPhotos));
+
+            }
+
         });
 
         // Camera preview
@@ -213,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             case AttributeEvent.GPS_COUNT:
                 TextView satelliteTextView = (TextView)findViewById(R.id.satelliteTextView);
                 Gps gps = this.drone.getAttribute(AttributeType.GPS);
-                satelliteTextView.setText(String.format("Sats: %3.1f", gps.getSatellitesCount()));
+                satelliteTextView.setText(String.format("Sats: %d", gps.getSatellitesCount()));
                 break;
 
             case AttributeEvent.STATE_VEHICLE_MODE:
@@ -223,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 flightModeTextView.setText("Mode: " + vehicleMode.getLabel());
 
                 // If the mode is switched and the pano is in progress let's release gimbal control
-                if(vehicleMode.getLabel() != "Guided" && panoInProgress) {
+                if(vehicleMode.getLabel().equals("Guided") && panoInProgress) {
                     panoInProgress = false;
                     GimbalApi.getApi(this.drone).stopGimbalControl(gimbalListener);
                 }
@@ -318,15 +430,79 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         });
     }
 
-    private static final int NUM_COLUMNS = 6;
+    private int NUM_COLUMNS = 6;  // 4 = 90 degrees 6 = 60 degree, 8 = 45 degree, 12 = 30 degree columns
+    private int UI_NUM_COLUMNS = 6;  // retain num columns setting from UI button
     private int loopCount = 0;
     private int[] pitches = {0, -30, -60, -90};
+    private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
-
+    private int SHOT_DELAY = 3000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
+    private boolean columnReduction = true;
+    private int calculatedPhotos =0;
+    private int decreaseColumns(int startingColumns){
+        int columns;
+        switch (startingColumns){
+            case 12: columns = 8;
+                break;
+            case 8: columns = 6;
+                break;
+            case 6: columns = 4;
+                break;
+            case 4: columns = 3;
+                break;
+            case 3: columns = 2;
+                break;
+            case 2: columns = 2;
+                break;
+            default: columns = 4; // default to 4 on invalid
+                break;
+        }
+        return columns;
+    }
+    private void autoDecreaseColumns(){
+        switch( NUM_COLUMNS){
+            case 12: NUM_COLUMNS = 8;
+                break;
+            case 8: NUM_COLUMNS = 6;
+                break;
+            case 6: NUM_COLUMNS = 4;
+                break;
+            case 4: NUM_COLUMNS = 3;
+                break;
+            case 3: NUM_COLUMNS = 2;
+                break;
+            case 2: NUM_COLUMNS = 2;
+                break;
+            default: NUM_COLUMNS = 4; // default to 4 on invalid
+                break;
+    }
+        showToast("Columns auto reduced to:" + NUM_COLUMNS);
+    }
     // Change to guided mode, start gimbal control, reset the gimbal to 0, and set mode to guided
+
+    private int calculatedPhotoCount(int columns, int numPitches, boolean reduction){
+        int numPhotos;
+        if (reduction) {
+            numPhotos = columns;
+            for (int i = 0; i < (numPitches-1); i++) {
+                columns = decreaseColumns(columns);
+                numPhotos += columns;
+            }
+
+
+        }else{
+            numPhotos = (columns * numPitches );
+        }
+        numPhotos +=1;
+        return numPhotos;
+    }
+
     private void setupPano() {
 
         totalPhotoCount = 0;
+        calculatedPhotos = calculatedPhotoCount(NUM_COLUMNS,NUM_PITCHES,columnReduction);
+        panoProgressBar.setMax(calculatedPhotos); // set progress bar to the photos column reduction count
+
         panoProgressBar.setProgress(totalPhotoCount);
         panoInProgress = true;
 
@@ -357,14 +533,14 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             }
         };
 
-        h.postDelayed(begin, 3000);
+        h.postDelayed(begin, SHOT_DELAY);
 
     }
 
     private void loopAndShoot() {
 
         // The pano stop button was clicked so let's reset a bunch of stuff
-        if(!panoInProgress) {
+        if (!panoInProgress) {
 
             panoButton.setText("Start");
 
@@ -382,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
             // Enable the start button again
             panoButton.setEnabled(true);
+
 
             showToast("Your panorama has been stopped successfully.");
 
@@ -410,20 +587,22 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 photoCount = 0;
 
                 // Take nadir shot
-                if(loopCount == 3) {
+                if(loopCount == NUM_PITCHES) {
 
                     loopCount = 0;
 
                     takeNadirPhotoAndFinishPano();
 
                     // Set the progress bar to 100%
-                    panoProgressBar.setProgress(100);
+                    panoProgressBar.setProgress(calculatedPhotoCount);
 
                     // Update the stop button
                     panoButton.setText("Start");
+                    columnsButton.setEnabled(true);
+                    pitchesButton.setEnabled(true);
 
 
-                // Continue with photo loop
+                    // Continue with photo loop
                 } else {
 
                     loopAndShoot();
@@ -431,7 +610,6 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 }
             }
         }; // End pitch gimbal
-
         // Yaw the drone
         final Runnable yaw = new Runnable() {
 
@@ -440,11 +618,11 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                 if(Build.MODEL.contains("SDK")) {
 
-                    showToast("Yaw drone: " + photoCount);
+                    showToast("Yaw drone: " + 360/NUM_COLUMNS);
 
                 } else {
 
-                    yawDrone(60);
+                    yawDrone(360/NUM_COLUMNS);
 
                 }
 
@@ -452,8 +630,10 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     loopCount++;
 
                     // Now let's pitch gimbal and then we'll begin the next loop
-                    h.postDelayed(pitch, 3000);
-
+                    h.postDelayed(pitch, SHOT_DELAY);
+                    if (columnReduction) {
+                        autoDecreaseColumns();
+                    }
                 } else {
 
                     loopAndShoot();
@@ -471,6 +651,10 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 if(Build.MODEL.contains("SDK")) {
 
                     showToast("Take photo");
+                    // Update progress bar
+                    totalPhotoCount++;
+                    panoProgressBar.setProgress(totalPhotoCount);
+
 
                 } else {
 
@@ -478,16 +662,18 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                     // Update progress bar
                     totalPhotoCount++;
-                    panoProgressBar.setProgress(totalPhotoCount*5);
+                    panoProgressBar.setProgress(totalPhotoCount);
+
 
                 }
-
-                h.postDelayed(yaw, 3000);
+                TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                photoCount.setText(String.format("Photos: %d of %d", totalPhotoCount,calculatedPhotos));
+                h.postDelayed(yaw, SHOT_DELAY);
 
             }
         }; // End take photo
 
-        h.postDelayed(photo, 3000);
+        h.postDelayed(photo, SHOT_DELAY);
 
         photoCount++;
 
@@ -498,7 +684,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         ControlApi.getApi(this.drone).turnTo(angle, 1, true, new AbstractCommandListener() {
             @Override
             public void onSuccess() {
-                showToast("Yawing 60 degrees...");
+                showToast("Yawing to"+ (360/NUM_COLUMNS) +" degrees...");
             }
 
             @Override
@@ -512,7 +698,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             }
         });
 
-        showToast("Yaw drone");
+        //showToast("Yaw drone..."); // remarked out to unclutter messages not needed if onSuccess happened.
 
     }
 
@@ -541,6 +727,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     }
 
     private void takePhoto() {
+
         SoloCameraApi.getApi(this.drone).takePhoto(new AbstractCommandListener() {
             @Override
             public void onSuccess() {
@@ -572,7 +759,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 if(Build.MODEL.contains("SDK")) {
 
                     showToast("Panorama complete!!!");
-
+                    panoInProgress = (false);//needed to add this when in sdk mode to end properly
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
                 } else {
 
                     pitchGimbal(0);
@@ -584,6 +772,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                             showToast("Panorama complete! You can now take control of Solo.");
                         }
                     });
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
 
                 }
             }
@@ -598,19 +787,21 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 if(Build.MODEL.contains("SDK")) {
 
                     showToast("Taking nadir shot");
-
+                    TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                    photoCount.setText(String.format("Photos: %d of %d", calculatedPhotos, calculatedPhotos));
                 } else {
 
                     takePhoto();
+                    NUM_COLUMNS = UI_NUM_COLUMNS;
 
                 }
 
-                h.postDelayed(pitch, 3000);
+                h.postDelayed(pitch, SHOT_DELAY);
 
             }
         };
 
-        h.postDelayed(finish, 3000);
+        h.postDelayed(finish, SHOT_DELAY);
 
     }
 
