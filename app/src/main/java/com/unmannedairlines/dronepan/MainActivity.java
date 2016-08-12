@@ -1,6 +1,7 @@
 package com.unmannedairlines.dronepan;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
@@ -136,7 +137,13 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     case 6: NUM_COLUMNS = 8;
                         SHOT_DELAY = 3000;
                         break;
-                    case 8: NUM_COLUMNS = 12;
+                    case 8: NUM_COLUMNS = 9;
+                        SHOT_DELAY = 3000;
+                        break;
+                    case 9: NUM_COLUMNS = 10;
+                        SHOT_DELAY = 3000;
+                        break;
+                    case 10: NUM_COLUMNS = 12;
                         SHOT_DELAY = 3000;
                         break;
                     case 12: NUM_COLUMNS = 3;
@@ -250,6 +257,16 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     }
 
     // When waking up let's keep the status and action bars hidden
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Toast.makeText(MainActivity.this, "Your orientation is portrait", Toast.LENGTH_SHORT).show();
+        }else{
+
+            Toast.makeText(MainActivity.this, "Your orientation is landscape", Toast.LENGTH_SHORT).show();
+        }
+    }
     @Override
     public void onResume() {
         super.onResume();
@@ -442,7 +459,11 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private int decreaseColumns(int startingColumns){
         int columns = 0;
         switch (startingColumns){
-            case 12: columns = 8;
+            case 12: columns = 10;
+                break;
+            case 10: columns = 9;
+                break;
+            case 9: columns = 8;
                 break;
             case 8: columns = 6;
                 break;
@@ -461,7 +482,11 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     }
     private void autoDecreaseColumns(){
         switch( NUM_COLUMNS){
-            case 12: NUM_COLUMNS = 8;
+            case 12: NUM_COLUMNS = 10;
+                break;
+            case 10: NUM_COLUMNS = 9;
+                break;
+            case 9: NUM_COLUMNS = 8;
                 break;
             case 8: NUM_COLUMNS = 6;
                 break;
