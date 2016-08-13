@@ -129,25 +129,25 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
 
                 switch (NUM_COLUMNS){
                     case 3: NUM_COLUMNS = 4;
-                        SHOT_DELAY = 3000;  // larger turn of drone requires more time
+                        SHOT_DELAY = 4000;  // larger turn of drone requires more time
                         break;
                     case 4: NUM_COLUMNS = 6;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     case 6: NUM_COLUMNS = 8;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     case 8: NUM_COLUMNS = 9;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     case 9: NUM_COLUMNS = 10;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     case 10: NUM_COLUMNS = 12;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     case 12: NUM_COLUMNS = 3;
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         break;
                     default: NUM_COLUMNS = 6;
                         break;
@@ -172,27 +172,27 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             public void onClick(View pit){
                 switch (pitches.length){
                     case 3: pitches = new int[] {0, -30, -60, -90};
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
                     case 4: pitches = new int[] {0,-23, -45, -67, -90};
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -23, -45, -67, -90" );
                         break;
                     case 5: pitches = new int[] {0, -15, -30, -45, -60, -90};
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -15, -30, -45, -60, -90" );
                         break;
                     case 6: pitches = new int[] {0, -45, -90};
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -45, -90" );
                         break;
                     default: pitches = new int[] {0, -30, -60, -90};
-                        SHOT_DELAY = 3000;
+                        SHOT_DELAY = 4000;
                         NUM_PITCHES = pitches.length -1;
                         pitchesButton.setText("Pitches: 0, -30, -60, -90" );
                         break;
@@ -453,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
     private int[] pitches = {0, -30, -60, -90};
     private int NUM_PITCHES = pitches.length-1;  // Set NUM_PITCHES to pitches array count minus one
     private int photoCount = 0;
-    private int SHOT_DELAY = 3000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
+    private int SHOT_DELAY = 4000;  // added a variable for SHOT DELAY to remove hard coding and allow more flexibility
     private boolean columnReduction = true;
     private int calculatedPhotos =0;
     private int decreaseColumns(int startingColumns){
@@ -501,7 +501,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
             default: NUM_COLUMNS = 4; // default to 4 on invalid
                 break;
     }
-        showToast("Columns auto reduced to:" + NUM_COLUMNS);
+        showToast("Columns auto reduced to: " + NUM_COLUMNS);
     }
     // Change to guided mode, start gimbal control, reset the gimbal to 0, and set mode to guided
 
@@ -709,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
         ControlApi.getApi(this.drone).turnTo(angle, 1, true, new AbstractCommandListener() {
             @Override
             public void onSuccess() {
-                showToast("Yawing to"+ (360/NUM_COLUMNS) +" degrees...");
+                showToast("Yawing "+ (360/NUM_COLUMNS) +" degrees...");
             }
 
             @Override
@@ -789,6 +789,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                 } else {
 
                     pitchGimbal(0);
+                    TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                    photoCount.setText(String.format("Photos: 0 of %d", (calculatedPhotos)));
 
                     // Change mode back to FLY mode, which is Loiter
                     VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_LOITER, new SimpleCommandListener() {
@@ -815,7 +817,8 @@ public class MainActivity extends AppCompatActivity implements TowerListener, Dr
                     TextView photoCount = (TextView) findViewById(R.id.photoCount);
                     photoCount.setText(String.format("Photos: %d of %d", calculatedPhotos, calculatedPhotos));
                 } else {
-
+                    TextView photoCount = (TextView) findViewById(R.id.photoCount);
+                    photoCount.setText(String.format("Photos: %d of %d", calculatedPhotos,calculatedPhotos));
                     takePhoto();
                     NUM_COLUMNS = UI_NUM_COLUMNS;
 
